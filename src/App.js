@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const tempMovieData = [
   {
@@ -50,9 +50,34 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
+const KEY = "e4c77c9b";
+const query = "Interstellar";
+
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [isLoading, setIsloading] = useState(false);
+
+  // useEffect(function () {
+  //   fetch(` http://www.omdbapi.com/?apikey=${KEY}&s=Guardians of the Galaxy Vol. 2
+  //   `)
+  //     .then((res) => res.json())
+  //     .then((data) => console.log(setMovies(data.Search)));
+  // }, []); // [] => means the useEffect function will only render on mount
+
+  useEffect(function () {
+    async function fetchMovies() {
+      setIsloading(true);
+      const res = await fetch(
+        ` http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+      );
+      const data = await res.json();
+
+      setMovies(data.Search);
+      setIsloading(false);
+    }
+    fetchMovies();
+  }, []);
 
   return (
     <>
@@ -74,7 +99,8 @@ export default function App() {
         /> */}
 
         <Box movies={movies}>
-          <MovieList movies={movies} />
+          {" "}
+          {isLoading ? <Loader /> : <MovieList movies={movies} />}
         </Box>
         <Box>
           <WatchedSummary watched={watched} />
@@ -83,6 +109,10 @@ export default function App() {
       </Main>
     </>
   );
+}
+
+function Loader() {
+  return <p className="loader">Loading...</p>;
 }
 
 function NavBar({ children }) {
