@@ -51,13 +51,14 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "e4c77c9b";
-const query = "Interstellar";
+const tempQuery = "book";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsloading] = useState(false);
   const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
 
   // useEffect(function () {
   //   fetch(` http://www.omdbapi.com/?apikey=${KEY}&s=Guardians of the Galaxy Vol. 2
@@ -67,18 +68,32 @@ export default function App() {
   // }, []); // [] => means the useEffect function will only render on mount
 
   useEffect(function () {
+    console.log(
+      "I am in syn with nothing, so I only get rendered once, at mount after the browser paint"
+    );
+  }, []);
+
+  useEffect(function () {
+    console.log(
+      "I am in sync with everything, so I get rendered everytime, after the browser paint"
+    );
+  });
+
+  console.log("During render => all renders, because i am render logic");
+
+  useEffect(function () {
     async function fetchMovies() {
       try {
         setIsloading(true);
         const res = await fetch(
-          ` http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          ` http://www.omdbapi.com/?apikey=${KEY}&s=${tempQuery}`
         );
         if (!res.ok)
           throw new Error("Something went wrong with fetching movies");
 
-        console.log(res);
+        //console.log(res);
         const data = await res.json();
-        console.log(data);
+        //console.log(data);
 
         if (data.Response === "False") throw new Error(data.Error);
 
@@ -97,7 +112,7 @@ export default function App() {
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery} />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
@@ -152,9 +167,7 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
-
+function Search({ query, setQuery }) {
   return (
     <input
       className="search"
